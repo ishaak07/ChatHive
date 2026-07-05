@@ -141,3 +141,21 @@
 .own-wrapper {
   justify-content: flex-end;
 }
+.emoji-wrapper {
+  position: relative;
+}
+
+.emoji-btn {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.3rem 0.5rem;
+}
+
+.emoji-picker-container {
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  z-index: 10;
+}

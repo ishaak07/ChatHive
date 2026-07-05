@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import EmojiPicker from 'emoji-picker-react';
 import './ChatWindow.css';
 
 // Date ko readable format mein convert karta hai (Today / Yesterday / actual date)
@@ -29,6 +30,7 @@ const formatDateLabel = (dateString) => {
 function ChatWindow({ room, privateUser }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const { user, token } = useAuth();
   const { socket } = useSocket();
   const messagesEndRef = useRef(null);
@@ -129,6 +131,11 @@ function ChatWindow({ room, privateUser }) {
     }
 
     setNewMessage('');
+    setShowEmojiPicker(false);
+  };
+
+  const handleEmojiClick = (emojiData) => {
+    setNewMessage((prev) => prev + emojiData.emoji);
   };
 
   if (!chatTarget) {
@@ -174,6 +181,21 @@ function ChatWindow({ room, privateUser }) {
       </div>
 
       <form className="message-input-area" onSubmit={handleSendMessage}>
+        <div className="emoji-wrapper">
+          <button
+            type="button"
+            className="emoji-btn"
+            onClick={() => setShowEmojiPicker((prev) => !prev)}
+          >
+            😊
+          </button>
+          {showEmojiPicker && (
+            <div className="emoji-picker-container">
+              <EmojiPicker onEmojiClick={handleEmojiClick} height={350} width={300} />
+            </div>
+          )}
+        </div>
+
         <input
           type="text"
           placeholder="Type a message..."
