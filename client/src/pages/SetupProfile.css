@@ -1,0 +1,179 @@
+.setup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f0fa;
+  padding: 2rem;
+}
+
+.setup-form {
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 480px;
+}
+
+.setup-form h2 {
+  text-align: center;
+  color: #2d2d2d;
+  margin-bottom: 1.5rem;
+}
+
+.setup-label {
+  font-weight: 600;
+  color: #2d2d2d;
+  margin: 1rem 0 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.avatar-option {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  object-fit: cover;
+  transition: border-color 0.2s ease;
+}
+
+.avatar-option:hover {
+  border-color: #d9b3e8;
+}
+
+.avatar-option.selected {
+  border-color: #8e44ad;
+}
+
+.setup-form textarea {
+  width: 100%;
+  padding: 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
+}
+
+.tags-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  align-items: center;
+}
+
+.tags-input-container input {
+  border: none;
+  outline: none;
+  flex: 1;
+  min-width: 100px;
+  padding: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.tag-chip {
+  background-color: #8e44ad;
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tag-chip button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.setup-submit {
+  width: 100%;
+  padding: 0.8rem;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 1.5rem;
+}
+
+.setup-submit:hover {
+  background-color: #6c3483;
+}
+.avatar-carousel-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.avatar-carousel {
+  display: flex;
+  gap: 0.6rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 0.3rem;
+  flex: 1;
+  scrollbar-width: none; /* Firefox mein scrollbar chhupao */
+}
+
+.avatar-carousel::-webkit-scrollbar {
+  display: none; /* Chrome/Safari mein scrollbar chhupao */
+}
+
+.avatar-option {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 3px solid transparent;
+  object-fit: cover;
+  transition: border-color 0.2s ease;
+}
+
+.avatar-option:hover {
+  border-color: #d9b3e8;
+}
+
+.avatar-option.selected {
+  border-color: #8e44ad;
+}
+
+.carousel-arrow {
+  background-color: #f3e5f9;
+  color: #8e44ad;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.carousel-arrow:hover {
+  background-color: #e0c9ec;
+}
