@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { getAvatarSrc } from '../utils/avatarMap';
 import EmojiPicker from 'emoji-picker-react';
 import './ChatWindow.css';
 
@@ -149,7 +150,18 @@ function ChatWindow({ room, privateUser }) {
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <h3>{room ? `# ${room.name}` : `@ ${privateUser.username}`}</h3>
+        {room ? (
+          <h3># {room.name}</h3>
+        ) : (
+          <div className="chat-header-user">
+            <img
+              src={getAvatarSrc(privateUser.avatar)}
+              alt={privateUser.username}
+              className="chat-header-avatar"
+            />
+            <h3>{privateUser.username}</h3>
+          </div>
+        )}
       </div>
 
       <div className="messages-area">

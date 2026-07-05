@@ -159,3 +159,28 @@
   left: 0;
   z-index: 10;
 }
+.chat-header {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid #ddd;
+  background-color: white;
+  display: flex;
+  align-items: center;
+}
+
+.chat-header h3 {
+  margin: 0;
+  color: #2d2d2d;
+}
+
+.chat-header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.chat-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+}
