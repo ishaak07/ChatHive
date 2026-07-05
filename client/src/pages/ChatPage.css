@@ -16,6 +16,7 @@
   padding: 1rem;
   border-right: 1px solid #ddd;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .sidebar h4 {
@@ -23,30 +24,14 @@
   color: #2d2d2d;
 }
 
-.chat-window {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.messages-area {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-  background-color: #fafafa;
-}
-
-.message-input-area {
-  padding: 1rem;
-  border-top: 1px solid #ddd;
-  background-color: white;
-}
 .sidebar-tabs {
   display: flex;
   margin-bottom: 1rem;
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #ddd;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sidebar-tabs button {
@@ -63,10 +48,13 @@
   background-color: #8e44ad;
   color: white;
 }
+
 .friend-sub-tabs {
   display: flex;
   margin-bottom: 1rem;
   gap: 0.3rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .friend-sub-tabs button {
@@ -85,6 +73,7 @@
   color: white;
   border-color: #8e44ad;
 }
+
 .requests-tab-btn {
   position: relative;
 }
@@ -104,4 +93,54 @@
   align-items: center;
   justify-content: center;
   padding: 0 3px;
+}
+
+.chat-window-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.back-to-list-btn {
+  display: none;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  color: #8e44ad;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+@media (max-width: 768px) {
+  .chat-body {
+    position: relative;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 5;
+    background-color: #f5f0fa;
+  }
+
+  .sidebar-hidden-mobile {
+    display: none;
+  }
+
+  .chat-window-container {
+    width: 100%;
+  }
+
+  .chat-hidden-mobile {
+    display: none;
+  }
+
+  .back-to-list-btn {
+    display: block;
+  }
 }

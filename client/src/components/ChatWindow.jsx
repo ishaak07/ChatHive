@@ -32,9 +32,11 @@ function ChatWindow({ room, privateUser }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [otherUserTyping, setOtherUserTyping] = useState(false);
   const { user, token } = useAuth();
   const { socket } = useSocket();
   const messagesEndRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const chatTarget = room || privateUser;
 
@@ -123,8 +125,50 @@ function ChatWindow({ room, privateUser }) {
   }, [socket]);
 
   useEffect(() => {
+    if (!socket) return;
+
+    const handleUserTyping = () => setOtherUserTyping(true);
+    const handleUserStoppedTyping = () => setOtherUserTyping(false);
+
+    socket.on('userTyping', handleUserTyping);
+    socket.on('userStoppedTyping', handleUserStoppedTyping);
+
+    return () => {
+      socket.off('userTyping', handleUserTyping);
+      socket.off('userStoppedTyping', handleUserStoppedTyping);
+    };
+  }, [socket]);
+
+  useEffect(() => {
+    setOtherUserTyping(false);
+  }, [room, privateUser]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value);
+
+    if (!socket || !chatTarget) return;
+
+    socket.emit('typing', {
+      roomId: room?._id,
+      receiverId: privateUser?._id,
+      username: user.username,
+    });
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    typingTimeoutRef.current = setTimeout(() => {
+      socket.emit('stopTyping', {
+        roomId: room?._id,
+        receiverId: privateUser?._id,
+      });
+    }, 2000);
+  };
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -146,6 +190,14 @@ function ChatWindow({ room, privateUser }) {
 
     setNewMessage('');
     setShowEmojiPicker(false);
+
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    socket.emit('stopTyping', {
+      roomId: room?._id,
+      receiverId: privateUser?._id,
+    });
   };
 
   const handleEmojiClick = (emojiData) => {
@@ -197,7 +249,10 @@ function ChatWindow({ room, privateUser }) {
               alt={privateUser.username}
               className="chat-header-avatar"
             />
-            <h3>{privateUser.username}</h3>
+            <div className="chat-header-info">
+              <h3>{privateUser.username}</h3>
+              {otherUserTyping && <span className="typing-status">typing...</span>}
+            </div>
           </div>
         )}
       </div>
@@ -233,7 +288,7 @@ function ChatWindow({ room, privateUser }) {
                       onClick={() => handleDeleteMessage(msg)}
                       title="Delete message"
                     >
-                        🗑
+                      🗑
                     </button>
                   )}
                 </div>
@@ -264,7 +319,7 @@ function ChatWindow({ room, privateUser }) {
           type="text"
           placeholder="Type a message..."
           value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          onChange={handleInputChange}
         />
         <button type="submit">Send</button>
       </form>

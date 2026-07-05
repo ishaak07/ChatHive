@@ -47,11 +47,19 @@ function ChatPage() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  const handleBackToList = () => {
+    setSelectedRoom(null);
+    setSelectedUser(null);
+  };
+
+  const chatTarget = selectedRoom || selectedUser;
+
   return (
     <div className="chat-page">
       <Navbar />
       <div className="chat-body">
-        <div className="sidebar">
+        {/* Mobile pe: chat khuli ho to sidebar chhupao. Desktop pe: hamesha dikhाओ */}
+        <div className={`sidebar ${chatTarget ? 'sidebar-hidden-mobile' : ''}`}>
           <div className="sidebar-tabs">
             <button
               className={activeTab === 'rooms' ? 'active' : ''}
@@ -112,7 +120,15 @@ function ChatPage() {
           )}
         </div>
 
-        <ChatWindow room={selectedRoom} privateUser={selectedUser} />
+        {/* Mobile pe: sirf chat khuli ho tabhi dikhे. Desktop pe: hamesha dikhाओ */}
+        <div className={`chat-window-container ${chatTarget ? '' : 'chat-hidden-mobile'}`}>
+          {chatTarget && (
+            <button className="back-to-list-btn" onClick={handleBackToList}>
+              ← Back
+            </button>
+          )}
+          <ChatWindow room={selectedRoom} privateUser={selectedUser} />
+        </div>
       </div>
     </div>
   );

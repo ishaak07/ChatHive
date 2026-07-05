@@ -71,3 +71,10 @@
 .auth-form a:hover {
   text-decoration: underline;
 }
+@media (max-width: 480px) {
+  .auth-form {
+    width: 100%;
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+}

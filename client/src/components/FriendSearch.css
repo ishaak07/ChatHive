@@ -1,18 +1,24 @@
 .friend-search {
   margin-bottom: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .friend-search form {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .friend-search input {
   flex: 1;
+  min-width: 0;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
 .friend-search button {
@@ -22,6 +28,7 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .search-message {
@@ -34,6 +41,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .search-result-item {
@@ -44,6 +53,15 @@
   background-color: white;
   border-radius: 4px;
   border: 1px solid #eee;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-result-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .search-result-item button {
@@ -54,4 +72,6 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
 }

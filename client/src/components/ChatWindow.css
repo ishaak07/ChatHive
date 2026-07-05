@@ -216,3 +216,39 @@
 .own-message .deleted-message .message-content em {
   color: #e0c9ec;
 }
+.typing-indicator {
+  padding: 0.3rem 1rem;
+  font-size: 0.8rem;
+  color: #8e44ad;
+  font-style: italic;
+}
+.chat-header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.chat-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header-info h3 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.typing-status {
+  font-size: 0.75rem;
+  color: #8e44ad;
+  font-style: italic;
+}
+@media (max-width: 480px) {
+  .message {
+    max-width: 80%;
+  }
+
+  .emoji-picker-container {
+    left: -50px; 
+  }
+}

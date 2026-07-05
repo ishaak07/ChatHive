@@ -54,3 +54,21 @@
   object-fit: cover;
   border: 2px solid white;
 }
+@media (max-width: 600px) {
+  .navbar {
+    padding: 0.8rem 1rem;
+  }
+
+  .logo {
+    font-size: 1.1rem;
+  }
+
+  .navbar-user span {
+    display: none; 
+  }
+
+  .navbar-right button {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.85rem;
+  }
+}

@@ -236,3 +236,32 @@
   height: auto;
   max-height: 400px;
 }
+@media (max-width: 768px) {
+  .landing-nav {
+    padding: 1rem 1.5rem;
+  }
+
+  .landing-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+
+  .landing-text h1 {
+    font-size: 2rem;
+  }
+
+  .cta-group {
+    justify-content: center;
+  }
+
+  .landing-features {
+    padding: 1rem 1.5rem 3rem 1.5rem;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .feature-card {
+    max-width: 100%;
+  }
+}

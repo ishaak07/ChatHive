@@ -8,13 +8,17 @@
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .create-room-form input {
   flex: 1;
+  min-width: 0;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  box-sizing: border-box;
 }
 
 .create-room-form button {
@@ -25,6 +29,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 .create-room-form button:hover {
@@ -34,6 +39,8 @@
 .rooms {
   flex: 1;
   overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .room-item {
@@ -45,6 +52,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .room-item:hover {
@@ -56,6 +65,13 @@
   color: white;
 }
 
+.room-item-actions {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .join-btn {
   padding: 0.2rem 0.5rem;
   font-size: 0.75rem;
@@ -64,26 +80,30 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 6px;
+.leave-btn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  flex-shrink: 0;
 }
 
-.status-dot.online {
-  background-color: #27ae60;
+.leave-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
-.status-dot.offline {
-  background-color: #bbb;
-}
 .friend-name {
   display: flex;
   align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .remove-friend-btn {
@@ -94,26 +114,26 @@
   cursor: pointer;
   padding: 0 0.3rem;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .remove-friend-btn:hover {
   color: #e74c3c;
 }
-.room-item-actions {
-  display: flex;
-  gap: 0.3rem;
-  align-items: center;
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
 }
 
-.leave-btn {
-  background: none;
-  border: none;
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
+.status-dot.online {
+  background-color: #27ae60;
 }
 
-.leave-btn:hover {
-  background-color: rgba(0, 0, 0, 0.05);
+.status-dot.offline {
+  background-color: #bbb;
 }

@@ -177,3 +177,15 @@
 .carousel-arrow:hover {
   background-color: #e0c9ec;
 }
+@media (max-width: 480px) {
+  .setup-form {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .avatar-option {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+  }
+}
