@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import './FriendRequests.css';
 
 function FriendRequests({ onFriendAccepted }) {
@@ -29,10 +30,11 @@ function FriendRequests({ onFriendAccepted }) {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchRequests(); // list refresh karo
-      onFriendAccepted?.(); // friends list bhi refresh karne ke liye parent ko batao
+      toast.success('Friend request accepted!');
+      fetchRequests();
+      onFriendAccepted?.();
     } catch (error) {
-      console.log('Error accepting request:', error);
+      toast.error('Error accepting request');
     }
   };
 
@@ -43,9 +45,10 @@ function FriendRequests({ onFriendAccepted }) {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      toast.info('Request rejected');
       fetchRequests();
     } catch (error) {
-      console.log('Error rejecting request:', error);
+      toast.error('Error rejecting request');
     }
   };
 

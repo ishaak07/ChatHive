@@ -184,3 +184,35 @@
   border-radius: 50%;
   object-fit: cover;
 }
+.message {
+  position: relative;
+}
+
+.delete-msg-btn {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.message:hover .delete-msg-btn {
+  opacity: 0.7;
+}
+
+.delete-msg-btn:hover {
+  opacity: 1 !important;
+}
+
+.deleted-message .message-content em {
+  color: #999;
+  font-style: italic;
+}
+
+.own-message .deleted-message .message-content em {
+  color: #e0c9ec;
+}

@@ -81,3 +81,39 @@
 .status-dot.offline {
   background-color: #bbb;
 }
+.friend-name {
+  display: flex;
+  align-items: center;
+}
+
+.remove-friend-btn {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 0.3rem;
+  line-height: 1;
+}
+
+.remove-friend-btn:hover {
+  color: #e74c3c;
+}
+.room-item-actions {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.leave-btn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}
+
+.leave-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}

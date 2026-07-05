@@ -1,18 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import RoomList from '../components/RoomList';
 import UserList from '../components/UserList';
 import FriendSearch from '../components/FriendSearch';
 import FriendRequests from '../components/FriendRequests';
 import ChatWindow from '../components/ChatWindow';
+import api from '../utils/api';
+import { useAuth } from '../context/AuthContext';
 import './ChatPage.css';
 
 function ChatPage() {
-  const [activeTab, setActiveTab] = useState('rooms'); // 'rooms' ya 'friends'
-  const [friendSubTab, setFriendSubTab] = useState('list'); // 'list', 'search', 'requests'
+  const [activeTab, setActiveTab] = useState('rooms');
+  const [friendSubTab, setFriendSubTab] = useState('list');
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
+  const { token } = useAuth();
+
+  const fetchPendingCount = async () => {
+    try {
+      const res = await api.get('/friends/requests', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setPendingCount(res.data.length);
+    } catch (error) {
+      console.log('Error fetching pending count:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingCount();
+  }, [refreshTrigger]);
 
   const handleSelectRoom = (room) => {
     setSelectedRoom(room);
@@ -25,7 +44,7 @@ function ChatPage() {
   };
 
   const handleFriendAccepted = () => {
-    setRefreshTrigger((prev) => prev + 1); // friends list ko refresh karne ke liye
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   return (
@@ -68,10 +87,13 @@ function ChatPage() {
                   Search
                 </button>
                 <button
-                  className={friendSubTab === 'requests' ? 'active' : ''}
+                  className={`requests-tab-btn ${friendSubTab === 'requests' ? 'active' : ''}`}
                   onClick={() => setFriendSubTab('requests')}
                 >
                   Requests
+                  {pendingCount > 0 && (
+                    <span className="notification-badge">{pendingCount}</span>
+                  )}
                 </button>
               </div>
 

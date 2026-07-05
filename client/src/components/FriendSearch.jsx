@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 import './FriendSearch.css';
 
 function FriendSearch() {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
-  const [message, setMessage] = useState('');
   const { token } = useAuth();
 
   const handleSearch = async (e) => {
@@ -18,9 +18,8 @@ function FriendSearch() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setResults(res.data);
-      setMessage('');
     } catch (error) {
-      console.log('Error searching:', error);
+      toast.error('Error searching users');
     }
   };
 
@@ -31,9 +30,9 @@ function FriendSearch() {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setMessage('Friend request sent!');
+      toast.success('Friend request sent!');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Error sending request');
+      toast.error(error.response?.data?.message || 'Error sending request');
     }
   };
 
@@ -48,8 +47,6 @@ function FriendSearch() {
         />
         <button type="submit">Search</button>
       </form>
-
-      {message && <p className="search-message">{message}</p>}
 
       <div className="search-results">
         {results.map((u) => (

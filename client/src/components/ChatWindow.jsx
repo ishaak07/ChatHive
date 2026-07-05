@@ -4,9 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { getAvatarSrc } from '../utils/avatarMap';
 import EmojiPicker from 'emoji-picker-react';
+import { toast } from 'react-toastify';
 import './ChatWindow.css';
 
-// Date ko readable format mein convert karta hai (Today / Yesterday / actual date)
 const formatDateLabel = (dateString) => {
   const messageDate = new Date(dateString);
   const today = new Date();
@@ -38,7 +38,6 @@ function ChatWindow({ room, privateUser }) {
 
   const chatTarget = room || privateUser;
 
-  // Chat target badalne par purane messages fetch karo
   useEffect(() => {
     const fetchHistory = async () => {
       if (!chatTarget) return;
@@ -65,7 +64,6 @@ function ChatWindow({ room, privateUser }) {
     }
   }, [room, privateUser, socket, token]);
 
-  // Room messages receive karna (real-time)
   useEffect(() => {
     if (!socket) return;
 
@@ -79,7 +77,6 @@ function ChatWindow({ room, privateUser }) {
     return () => socket.off('receiveMessage', handleReceiveMessage);
   }, [socket, room]);
 
-  // Private messages receive karna (real-time)
   useEffect(() => {
     if (!socket) return;
 
@@ -97,12 +94,28 @@ function ChatWindow({ room, privateUser }) {
     return () => socket.off('receivePrivateMessage', handleReceivePrivateMessage);
   }, [socket, privateUser, user]);
 
-  // Error messages sunna
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMessageDeleted = ({ messageId }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId
+            ? { ...msg, content: 'This message was deleted', isDeleted: true }
+            : msg
+        )
+      );
+    };
+
+    socket.on('messageDeleted', handleMessageDeleted);
+    return () => socket.off('messageDeleted', handleMessageDeleted);
+  }, [socket]);
+
   useEffect(() => {
     if (!socket) return;
 
     const handleError = (error) => {
-      alert(error.message);
+      toast.error(error.message);
     };
 
     socket.on('errorMessage', handleError);
@@ -139,6 +152,31 @@ function ChatWindow({ room, privateUser }) {
     setNewMessage((prev) => prev + emojiData.emoji);
   };
 
+  const handleDeleteMessage = async (msg) => {
+    if (!window.confirm('Delete this message?')) return;
+
+    try {
+      await api.delete(`/messages/${msg._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          m._id === msg._id ? { ...m, content: 'This message was deleted', isDeleted: true } : m
+        )
+      );
+
+      socket.emit('deleteMessage', {
+        messageId: msg._id,
+        roomId: room?._id,
+        receiverId: privateUser?._id,
+        senderId: user.id,
+      });
+    } catch (error) {
+      toast.error('Error deleting message');
+    }
+  };
+
   if (!chatTarget) {
     return (
       <div className="chat-window-empty">
@@ -170,6 +208,8 @@ function ChatWindow({ room, privateUser }) {
             index === 0 ||
             formatDateLabel(msg.createdAt) !== formatDateLabel(messages[index - 1].createdAt);
 
+          const isOwn = msg.sender._id === user.id;
+
           return (
             <div key={msg._id} className="message-row">
               {showDateSeparator && (
@@ -177,13 +217,25 @@ function ChatWindow({ room, privateUser }) {
                   <span>{formatDateLabel(msg.createdAt)}</span>
                 </div>
               )}
-              <div className={`message-wrapper ${msg.sender._id === user.id ? 'own-wrapper' : ''}`}>
-                <div className={`message ${msg.sender._id === user.id ? 'own-message' : ''}`}>
+              <div className={`message-wrapper ${isOwn ? 'own-wrapper' : ''}`}>
+                <div className={`message ${isOwn ? 'own-message' : ''} ${msg.isDeleted ? 'deleted-message' : ''}`}>
                   <span className="message-sender">{msg.sender.username}</span>
-                  <p className="message-content">{msg.content}</p>
+                  <p className="message-content">
+                    {msg.isDeleted ? <em>This message was deleted</em> : msg.content}
+                  </p>
                   <span className="message-time">
                     {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
+
+                  {isOwn && !msg.isDeleted && (
+                    <button
+                      className="delete-msg-btn"
+                      onClick={() => handleDeleteMessage(msg)}
+                      title="Delete message"
+                    >
+                        🗑
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

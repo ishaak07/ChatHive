@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
+import { toast } from 'react-toastify';
 import './RoomList.css';
 
 function UserList({ onSelectUser, selectedUserId, refreshTrigger }) {
@@ -24,7 +25,6 @@ function UserList({ onSelectUser, selectedUserId, refreshTrigger }) {
     fetchFriends();
   }, [refreshTrigger]);
 
-  // Real-time online/offline status update sunna
   useEffect(() => {
     if (!socket) return;
 
@@ -38,6 +38,23 @@ function UserList({ onSelectUser, selectedUserId, refreshTrigger }) {
     return () => socket.off('userStatusChanged', handleStatusChange);
   }, [socket]);
 
+  const handleRemoveFriend = async (e, friendId) => {
+    e.stopPropagation();
+
+    const confirmDelete = window.confirm('Remove this friend? Your chat history will remain, but they will be removed from your friends list.');
+    if (!confirmDelete) return;
+
+    try {
+      await api.delete(`/friends/${friendId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success('Friend removed');
+      fetchFriends();
+    } catch (error) {
+      toast.error('Error removing friend');
+    }
+  };
+
   if (friends.length === 0) {
     return <p style={{ color: '#888', fontSize: '0.85rem' }}>No friends yet. Search and add some!</p>;
   }
@@ -50,8 +67,17 @@ function UserList({ onSelectUser, selectedUserId, refreshTrigger }) {
           className={`room-item ${selectedUserId === f._id ? 'active' : ''}`}
           onClick={() => onSelectUser(f)}
         >
-          <span className={`status-dot ${f.isOnline ? 'online' : 'offline'}`}></span>
-          {f.username}
+          <span className="friend-name">
+            <span className={`status-dot ${f.isOnline ? 'online' : 'offline'}`}></span>
+            {f.username}
+          </span>
+          <button
+            className="remove-friend-btn"
+            onClick={(e) => handleRemoveFriend(e, f._id)}
+            title="Remove friend"
+          >
+            ×
+          </button>
         </div>
       ))}
     </div>
