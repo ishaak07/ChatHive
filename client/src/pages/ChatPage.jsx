@@ -5,8 +5,11 @@ import UserList from '../components/UserList';
 import FriendSearch from '../components/FriendSearch';
 import FriendRequests from '../components/FriendRequests';
 import ChatWindow from '../components/ChatWindow';
+import Connect4Game from '../components/Connect4Game';
 import api from '../utils/api';
 import { useAuth } from '../context/AuthContext';
+import { useSocket } from '../context/SocketContext';
+import { toast } from 'react-toastify';
 import './ChatPage.css';
 
 function ChatPage() {
@@ -16,7 +19,10 @@ function ChatPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
-  const { token } = useAuth();
+  const [gameInvite, setGameInvite] = useState(null);
+  const [activeGame, setActiveGame] = useState(null);
+  const { token, user } = useAuth();
+  const { socket } = useSocket();
 
   const fetchPendingCount = async () => {
     try {
@@ -32,6 +38,30 @@ function ChatPage() {
   useEffect(() => {
     fetchPendingCount();
   }, [refreshTrigger]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleInviteReceived = ({ fromUserId, fromUsername }) => {
+      setGameInvite({ fromUserId, fromUsername });
+    };
+
+    const handleInviteResponded = ({ accepted, fromUserId }) => {
+      if (accepted) {
+        setActiveGame({ _id: fromUserId, username: selectedUser?.username || 'Opponent', isInviter: true });
+      } else {
+        toast.info('Game invite declined');
+      }
+    };
+
+    socket.on('gameInviteReceived', handleInviteReceived);
+    socket.on('gameInviteResponded', handleInviteResponded);
+
+    return () => {
+      socket.off('gameInviteReceived', handleInviteReceived);
+      socket.off('gameInviteResponded', handleInviteResponded);
+    };
+  }, [socket, selectedUser]);
 
   const handleSelectRoom = (room) => {
     setSelectedRoom(room);
@@ -52,13 +82,38 @@ function ChatPage() {
     setSelectedUser(null);
   };
 
+  const handleSendGameInvite = () => {
+    if (!selectedUser) return;
+
+    socket.emit('gameInvite', {
+      toUserId: selectedUser._id,
+      fromUserId: user.id,
+      fromUsername: user.username,
+    });
+
+    toast.info('Game invite sent!');
+  };
+
+  const handleRespondToInvite = (accepted) => {
+    socket.emit('gameInviteResponse', {
+      toUserId: gameInvite.fromUserId,
+      accepted,
+      fromUserId: user.id,
+    });
+
+    if (accepted) {
+      setActiveGame({ _id: gameInvite.fromUserId, username: gameInvite.fromUsername, isInviter: false });
+    }
+
+    setGameInvite(null);
+  };
+
   const chatTarget = selectedRoom || selectedUser;
 
   return (
     <div className="chat-page">
       <Navbar />
       <div className="chat-body">
-        {/* Mobile pe: chat khuli ho to sidebar chhupao. Desktop pe: hamesha dikhाओ */}
         <div className={`sidebar ${chatTarget ? 'sidebar-hidden-mobile' : ''}`}>
           <div className="sidebar-tabs">
             <button
@@ -120,16 +175,29 @@ function ChatPage() {
           )}
         </div>
 
-        {/* Mobile pe: sirf chat khuli ho tabhi dikhे. Desktop pe: hamesha dikhाओ */}
         <div className={`chat-window-container ${chatTarget ? '' : 'chat-hidden-mobile'}`}>
           {chatTarget && (
             <button className="back-to-list-btn" onClick={handleBackToList}>
               ← Back
             </button>
           )}
-          <ChatWindow room={selectedRoom} privateUser={selectedUser} />
+          <ChatWindow room={selectedRoom} privateUser={selectedUser} onPlayGame={handleSendGameInvite} />
         </div>
       </div>
+
+      {gameInvite && (
+        <div className="game-invite-popup">
+          <p>{gameInvite.fromUsername} invited you to play Connect 4!</p>
+          <div className="game-invite-actions">
+            <button onClick={() => handleRespondToInvite(true)}>Accept</button>
+            <button onClick={() => handleRespondToInvite(false)}>Decline</button>
+          </div>
+        </div>
+      )}
+
+      {activeGame && (
+        <Connect4Game opponent={activeGame} onClose={() => setActiveGame(null)} />
+      )}
     </div>
   );
 }

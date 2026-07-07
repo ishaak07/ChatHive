@@ -28,11 +28,19 @@ const formatDateLabel = (dateString) => {
   });
 };
 
-function ChatWindow({ room, privateUser }) {
+function ChatWindow({ room, privateUser, onPlayGame }) {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [smartReplies, setSmartReplies] = useState([]);
+  const [loadingReplies, setLoadingReplies] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [summary, setSummary] = useState('');
+  const [loadingSummary, setLoadingSummary] = useState(false);
+  const [showExtractor, setShowExtractor] = useState(false);
+  const [extractedInfo, setExtractedInfo] = useState(null);
+  const [loadingExtract, setLoadingExtract] = useState(false);
   const { user, token } = useAuth();
   const { socket } = useSocket();
   const messagesEndRef = useRef(null);
@@ -66,12 +74,33 @@ function ChatWindow({ room, privateUser }) {
     }
   }, [room, privateUser, socket, token]);
 
+  const fetchSmartReplies = async (lastMessageContent) => {
+    setLoadingReplies(true);
+    try {
+      const res = await api.post(
+        '/ai/smart-replies',
+        { lastMessage: lastMessageContent },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setSmartReplies(res.data.suggestions);
+    } catch (error) {
+      console.log('Error fetching smart replies:', error);
+      setSmartReplies([]);
+    } finally {
+      setLoadingReplies(false);
+    }
+  };
+
   useEffect(() => {
     if (!socket) return;
 
     const handleReceiveMessage = (message) => {
       if (room && message.room === room._id) {
         setMessages((prev) => [...prev, message]);
+
+        if (message.sender._id !== user.id) {
+          fetchSmartReplies(message.content);
+        }
       }
     };
 
@@ -89,6 +118,10 @@ function ChatWindow({ room, privateUser }) {
         (message.receiver === privateUser._id || message.receiver === user.id)
       ) {
         setMessages((prev) => [...prev, message]);
+
+        if (message.sender._id !== user.id) {
+          fetchSmartReplies(message.content);
+        }
       }
     };
 
@@ -141,6 +174,7 @@ function ChatWindow({ room, privateUser }) {
 
   useEffect(() => {
     setOtherUserTyping(false);
+    setSmartReplies([]);
   }, [room, privateUser]);
 
   useEffect(() => {
@@ -190,6 +224,7 @@ function ChatWindow({ room, privateUser }) {
 
     setNewMessage('');
     setShowEmojiPicker(false);
+    setSmartReplies([]);
 
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
@@ -202,6 +237,11 @@ function ChatWindow({ room, privateUser }) {
 
   const handleEmojiClick = (emojiData) => {
     setNewMessage((prev) => prev + emojiData.emoji);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setNewMessage(suggestion);
+    setSmartReplies([]);
   };
 
   const handleDeleteMessage = async (msg) => {
@@ -226,6 +266,70 @@ function ChatWindow({ room, privateUser }) {
       });
     } catch (error) {
       toast.error('Error deleting message');
+    }
+  };
+
+  const handleSummarize = async () => {
+    if (messages.length === 0) {
+      toast.info('No messages to summarize yet');
+      return;
+    }
+
+    setShowSummary(true);
+    setLoadingSummary(true);
+
+    try {
+      const formattedMessages = messages
+        .filter((msg) => !msg.isDeleted)
+        .map((msg) => ({
+          sender: msg.sender.username,
+          content: msg.content,
+        }));
+
+      const res = await api.post(
+        '/ai/summarize',
+        { messages: formattedMessages },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setSummary(res.data.summary);
+    } catch (error) {
+      toast.error('Error generating summary');
+      setShowSummary(false);
+    } finally {
+      setLoadingSummary(false);
+    }
+  };
+
+  const handleExtractInfo = async () => {
+    if (messages.length === 0) {
+      toast.info('No messages to analyze yet');
+      return;
+    }
+
+    setShowExtractor(true);
+    setLoadingExtract(true);
+
+    try {
+      const formattedMessages = messages
+        .filter((msg) => !msg.isDeleted)
+        .map((msg) => ({
+          sender: msg.sender.username,
+          content: msg.content,
+        }));
+
+      const res = await api.post(
+        '/ai/extract',
+        { messages: formattedMessages },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setExtractedInfo(res.data.extracted);
+    } catch (error) {
+      toast.error('Error extracting information');
+      setShowExtractor(false);
+    } finally {
+      setLoadingExtract(false);
     }
   };
 
@@ -255,6 +359,20 @@ function ChatWindow({ room, privateUser }) {
             </div>
           </div>
         )}
+
+        <div className="header-actions">
+          {privateUser && (
+            <button className="play-game-btn-header" onClick={onPlayGame} title="Play Connect 4">
+              🎮 Play
+            </button>
+          )}
+          <button className="summarize-btn" onClick={handleSummarize} title="Summarize conversation">
+            ✨ Summarize
+          </button>
+          <button className="extract-btn" onClick={handleExtractInfo} title="Extract important info">
+            📌 Extract Info
+          </button>
+        </div>
       </div>
 
       <div className="messages-area">
@@ -299,6 +417,20 @@ function ChatWindow({ room, privateUser }) {
         <div ref={messagesEndRef} />
       </div>
 
+      {smartReplies.length > 0 && (
+        <div className="smart-replies">
+          {smartReplies.map((reply, index) => (
+            <button
+              key={index}
+              className="smart-reply-chip"
+              onClick={() => handleSuggestionClick(reply)}
+            >
+              {reply}
+            </button>
+          ))}
+        </div>
+      )}
+
       <form className="message-input-area" onSubmit={handleSendMessage}>
         <div className="emoji-wrapper">
           <button
@@ -323,6 +455,90 @@ function ChatWindow({ room, privateUser }) {
         />
         <button type="submit">Send</button>
       </form>
+
+      {showSummary && (
+        <div className="summary-modal-overlay" onClick={() => setShowSummary(false)}>
+          <div className="summary-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="summary-modal-header">
+              <h3>✨ Conversation Summary</h3>
+              <button onClick={() => setShowSummary(false)}>×</button>
+            </div>
+            <div className="summary-modal-body">
+              {loadingSummary ? (
+                <p className="summary-loading">Generating summary...</p>
+              ) : (
+                <p>{summary}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {showExtractor && (
+        <div className="summary-modal-overlay" onClick={() => setShowExtractor(false)}>
+          <div className="summary-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="summary-modal-header">
+              <h3>📌 Important Information</h3>
+              <button onClick={() => setShowExtractor(false)}>×</button>
+            </div>
+            <div className="summary-modal-body">
+              {loadingExtract ? (
+                <p className="summary-loading">Analyzing conversation...</p>
+              ) : extractedInfo ? (
+                <div className="extracted-info">
+                  {extractedInfo.meetings?.length > 0 && (
+                    <div className="extract-category">
+                      <h4>📅 Meetings</h4>
+                      <ul>
+                        {extractedInfo.meetings.map((item, i) => <li key={i}>{item}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {extractedInfo.deadlines?.length > 0 && (
+                    <div className="extract-category">
+                      <h4>📝 Deadlines</h4>
+                      <ul>
+                        {extractedInfo.deadlines.map((item, i) => <li key={i}>{item}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {extractedInfo.locations?.length > 0 && (
+                    <div className="extract-category">
+                      <h4>📍 Locations</h4>
+                      <ul>
+                        {extractedInfo.locations.map((item, i) => <li key={i}>{item}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {extractedInfo.contacts?.length > 0 && (
+                    <div className="extract-category">
+                      <h4>📞 Contacts</h4>
+                      <ul>
+                        {extractedInfo.contacts.map((item, i) => <li key={i}>{item}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {extractedInfo.tasks?.length > 0 && (
+                    <div className="extract-category">
+                      <h4>✅ Tasks</h4>
+                      <ul className="task-list">
+                        {extractedInfo.tasks.map((item, i) => <li key={i}>☐ {item}</li>)}
+                      </ul>
+                    </div>
+                  )}
+
+                  {Object.values(extractedInfo).every((arr) => arr.length === 0) && (
+                    <p>No important information found in this conversation.</p>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

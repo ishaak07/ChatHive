@@ -1,0 +1,107 @@
+.connect4-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.connect4-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 95%;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+}
+
+.connect4-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.connect4-header h3 {
+  margin: 0;
+  color: #2d2d2d;
+  font-size: 1.1rem;
+}
+
+.connect4-header button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+}
+
+.connect4-status {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #8e44ad;
+}
+
+.game-result {
+  font-size: 1.1rem;
+}
+
+.connect4-board {
+  background-color: #2c3e91;
+  padding: 8px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.connect4-row {
+  display: flex;
+}
+
+.connect4-cell {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.connect4-disc {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: white;
+}
+
+.connect4-disc.red {
+  background-color: #e74c3c;
+}
+
+.connect4-disc.yellow {
+  background-color: #f1c40f;
+}
+
+.connect4-disc.empty {
+  background-color: white;
+}
+
+.restart-btn {
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.6rem 1.5rem;
+  background-color: #8e44ad;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.restart-btn:hover {
+  background-color: #6c3483;
+}
