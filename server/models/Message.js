@@ -9,16 +9,20 @@ const messageSchema = new mongoose.Schema({
   room: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
-    default: null, // agar room message hai
+    default: null,
   },
   receiver: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    default: null, // agar private message hai
+    default: null,
   },
   content: {
     type: String,
     required: true,
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
 }, { timestamps: true });
 

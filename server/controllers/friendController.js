@@ -132,9 +132,24 @@ const getFriends = async (req, res) => {
   try {
     const myId = req.userId;
 
-    const me = await User.findById(myId).populate('friends', 'username email isOnline');
+    const me = await User.findById(myId).populate('friends', 'username email isOnline avatar');
 
     res.status(200).json(me.friends);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// REMOVE FRIEND
+const removeFriend = async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    const myId = req.userId;
+
+    await User.findByIdAndUpdate(myId, { $pull: { friends: friendId } });
+    await User.findByIdAndUpdate(friendId, { $pull: { friends: myId } });
+
+    res.status(200).json({ message: 'Friend removed' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
@@ -147,4 +162,5 @@ module.exports = {
   acceptFriendRequest,
   rejectFriendRequest,
   getFriends,
+  removeFriend,
 };

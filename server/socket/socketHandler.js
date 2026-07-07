@@ -23,7 +23,6 @@ const socketHandler = (io) => {
       console.log(`Socket ${socket.id} joined room ${roomId}`);
     });
 
-    // Room mein message bhejna — ab membership check ke sath
     socket.on('sendMessage', async ({ roomId, senderId, content }) => {
       try {
         const room = await Room.findById(roomId);
@@ -32,7 +31,6 @@ const socketHandler = (io) => {
           return socket.emit('errorMessage', { message: 'Room not found' });
         }
 
-        // Check karo sender is room ka member hai ya nahi
         if (!room.members.includes(senderId)) {
           return socket.emit('errorMessage', { message: 'You must join this room to send messages' });
         }
@@ -66,6 +64,31 @@ const socketHandler = (io) => {
         io.to(senderId).emit('receivePrivateMessage', populatedMessage);
       } catch (error) {
         console.log('Error sending private message:', error.message);
+      }
+    });
+
+    socket.on('typing', ({ roomId, receiverId, username }) => {
+      if (roomId) {
+        socket.to(roomId).emit('userTyping', { username, roomId });
+      } else if (receiverId) {
+        io.to(receiverId).emit('userTyping', { username, receiverId: socket.id });
+      }
+    });
+
+    socket.on('stopTyping', ({ roomId, receiverId }) => {
+      if (roomId) {
+        socket.to(roomId).emit('userStoppedTyping', { roomId });
+      } else if (receiverId) {
+        io.to(receiverId).emit('userStoppedTyping', {});
+      }
+    });
+
+    socket.on('deleteMessage', ({ messageId, roomId, receiverId, senderId }) => {
+      if (roomId) {
+        io.to(roomId).emit('messageDeleted', { messageId });
+      } else if (receiverId) {
+        io.to(receiverId).emit('messageDeleted', { messageId });
+        io.to(senderId).emit('messageDeleted', { messageId });
       }
     });
 
