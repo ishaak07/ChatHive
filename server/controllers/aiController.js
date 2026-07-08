@@ -56,4 +56,47 @@ Summary:`;
   }
 };
 
-module.exports = { getSmartReplies, summarizeChat};
+
+const extractInfo = async (req, res) => {
+  try {
+    const { messages } = req.body; 
+
+    if (!messages || messages.length === 0) {
+      return res.status(400).json({ message: 'No messages to analyze' });
+    }
+
+    const conversationText = messages
+      .map((msg) => `${msg.sender}: ${msg.content}`)
+      .join('\n');
+
+    const prompt = `Analyze this conversation and extract important information into these categories: Meetings, Deadlines, Locations, Contacts, and Tasks.
+
+Conversation:
+${conversationText}
+
+Respond ONLY in this exact JSON format (no extra text, no markdown formatting, just raw JSON):
+{
+  "meetings": ["item1", "item2"],
+  "deadlines": ["item1"],
+  "locations": ["item1"],
+  "contacts": ["item1"],
+  "tasks": ["item1", "item2"]
+}
+
+If a category has no items, use an empty array. Keep each item short (under 10 words).`;
+
+    const result = await model.generateContent(prompt);
+    let text = result.response.text().trim();
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+    const extracted = JSON.parse(text);
+
+    res.status(200).json({ extracted });
+  } catch (error) {
+    console.log('Extractor error:', error.message);
+    res.status(500).json({ message: 'Error extracting information' });
+  }
+};
+
+module.exports = { getSmartReplies, summarizeChat, extractInfo };
+

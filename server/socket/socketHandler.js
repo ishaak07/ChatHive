@@ -92,6 +92,23 @@ const socketHandler = (io) => {
       }
     });
 
+    socket.on('gameInvite', ({ toUserId, fromUserId, fromUsername }) => {
+      console.log('Game invite - sending to room:', toUserId, 'from:', fromUsername);
+      io.to(toUserId).emit('gameInviteReceived', { fromUserId, fromUsername });
+    });
+
+    socket.on('gameInviteResponse', ({ toUserId, accepted, fromUserId }) => {
+      io.to(toUserId).emit('gameInviteResponded', { accepted, fromUserId });
+    });
+
+    socket.on('gameMove', ({ toUserId, board, currentPlayer, column, row }) => {
+      io.to(toUserId).emit('gameMoveReceived', { board, currentPlayer, column, row });
+    });
+
+    socket.on('gameRestart', ({ toUserId }) => {
+      io.to(toUserId).emit('gameRestarted');
+    });
+
     socket.on('disconnect', async () => {
       console.log('User disconnected:', socket.id);
 
