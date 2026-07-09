@@ -1,4 +1,4 @@
-# 💬 ChatHive
+# 🐝 ChatHive
 
 A full-stack real-time chat application built with the **MERN Stack** and **Socket.IO**. 
 ChatHive enables users to connect through private and group conversations while offering AI-powered productivity features and an interactive multiplayer gaming experience.
