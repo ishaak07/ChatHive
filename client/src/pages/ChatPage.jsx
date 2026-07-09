@@ -84,7 +84,7 @@ function ChatPage() {
 
   const handleSendGameInvite = () => {
     if (!selectedUser) return;
-
+    console.log('Sending invite to:', selectedUser._id, 'from:', user.id);
     socket.emit('gameInvite', {
       toUserId: selectedUser._id,
       fromUserId: user.id,

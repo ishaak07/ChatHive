@@ -280,11 +280,12 @@ function ChatWindow({ room, privateUser, onPlayGame }) {
 
     try {
       const formattedMessages = messages
-        .filter((msg) => !msg.isDeleted)
-        .map((msg) => ({
-          sender: msg.sender.username,
-          content: msg.content,
-        }));
+      .filter((msg) => !msg.isDeleted)
+      .slice(-40)
+      .map((msg) => ({
+        sender: msg.sender.username,
+        content: msg.content,
+      }));
 
       const res = await api.post(
         '/ai/summarize',
@@ -300,7 +301,6 @@ function ChatWindow({ room, privateUser, onPlayGame }) {
       setLoadingSummary(false);
     }
   };
-
   const handleExtractInfo = async () => {
     if (messages.length === 0) {
       toast.info('No messages to analyze yet');
@@ -313,20 +313,30 @@ function ChatWindow({ room, privateUser, onPlayGame }) {
     try {
       const formattedMessages = messages
         .filter((msg) => !msg.isDeleted)
+        .slice(-40)
         .map((msg) => ({
           sender: msg.sender.username,
           content: msg.content,
         }));
 
-      const res = await api.post(
-        '/ai/extract',
-        { messages: formattedMessages },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const res = await Promise.race([
+        api.post(
+          '/ai/extract',
+          { messages: formattedMessages },
+          { headers: { Authorization: `Bearer ${token}` } }
+        ),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('timeout')), 15000)
+        ),
+      ]);
 
       setExtractedInfo(res.data.extracted);
     } catch (error) {
-      toast.error('Error extracting information');
+      if (error.message === 'timeout') {
+        toast.error('This is taking longer than expected. Please try again in a moment.');
+      } else {
+        toast.error('Error extracting information');
+      }
       setShowExtractor(false);
     } finally {
       setLoadingExtract(false);
