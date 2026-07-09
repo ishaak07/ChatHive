@@ -10,7 +10,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     if (token && user) {
-      const newSocket = io('http://localhost:5000');
+      const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000');
 
       newSocket.on('connect', () => {
         console.log('Socket connected:', newSocket.id);
