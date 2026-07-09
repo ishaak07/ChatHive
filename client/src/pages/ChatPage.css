@@ -111,6 +111,7 @@
   cursor: pointer;
   text-align: left;
   border-bottom: 1px solid #eee;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -141,7 +142,7 @@
   }
 
   .back-to-list-btn {
-    display: block;
+    display: block !important;
   }
 }
 .play-game-btn {
